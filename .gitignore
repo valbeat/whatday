@@ -25,4 +25,6 @@ _testmain.go
 *.test
 *.prof
 
-
+# for vscode
+.vscode
+debug
