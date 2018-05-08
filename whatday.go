@@ -14,8 +14,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func getListBody() ([]byte, error) {
-	now := time.Now()
+func GetListBody(now time.Time) ([]byte, error) {
 	m := int(now.Month())
 	d := int(now.Day())
 	cacheName := "list_" + strconv.Itoa(m) + "-" + strconv.Itoa(d) + ".html"
@@ -62,7 +61,7 @@ func getListBody() ([]byte, error) {
 	return body, nil
 }
 
-func getDetailBody(path string) ([]byte, error) {
+func GetDetailBody(path string) ([]byte, error) {
 	cacheName := "detail_" + path + ".html"
 	f, _ := os.Open(cacheName)
 	defer f.Close()
@@ -109,9 +108,9 @@ type Article struct {
 	Text  string
 }
 
-func getArticle(s *goquery.Selection) Article {
+func GetArticle(s *goquery.Selection) Article {
 	href, _ := s.Attr("href")
-	detail, _ := getDetailBody(href)
+	detail, _ := GetDetailBody(href)
 	_doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(detail)))
 
 	article := Article{}
@@ -120,9 +119,8 @@ func getArticle(s *goquery.Selection) Article {
 	return article
 }
 
-func main() {
-
-	b, _ := getListBody()
+func NewArticle() Article {
+	b, _ := GetListBody(time.Now())
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(b)))
 	if err != nil {
@@ -131,9 +129,18 @@ func main() {
 
 	nodeList := doc.Find(".today_kinenbilist .winDetail")
 
-	rand.Seed(time.Now().UnixNano())
+	// rand.Seed(time.Now().UnixNano()
 	node := nodeList.Eq(rand.Intn(nodeList.Length()))
-	article := getArticle(node)
+	article := GetArticle(node)
+	return article
+}
+
+func Print() {
+	article := NewArticle()
 	println(article.Title)
 	println(article.Text)
+}
+
+func main() {
+	Print()
 }
