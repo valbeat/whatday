@@ -43,7 +43,6 @@ func GetListBody(now time.Time) ([]byte, error) {
 	values.Add("M", strconv.Itoa(m))
 	values.Add("D", strconv.Itoa(d))
 
-	fmt.Println(values.Encode())
 	res, err := http.PostForm(endpoint, values)
 	if err != nil {
 		fmt.Println(err)
