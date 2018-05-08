@@ -121,8 +121,8 @@ func GetArticle(s *goquery.Selection) Article {
 	return article
 }
 
-func NewArticle() Article {
-	b, _ := GetListBody(time.Now())
+func NewArticle(t time.Time) Article {
+	b, _ := GetListBody(t)
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(b)))
 	if err != nil {
@@ -131,18 +131,18 @@ func NewArticle() Article {
 
 	nodeList := doc.Find(".today_kinenbilist .winDetail")
 
-	// rand.Seed(time.Now().UnixNano()
 	node := nodeList.Eq(rand.Intn(nodeList.Length()))
 	article := GetArticle(node)
 	return article
 }
 
 func Print() {
-	article := NewArticle()
+	article := NewArticle(time.Now())
 	println(article.Title)
 	println(article.Text)
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	Print()
 }
