@@ -28,3 +28,6 @@ _testmain.go
 # for vscode
 .vscode
 debug
+
+# for project
+cache
