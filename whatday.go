@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -12,38 +15,82 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	log "github.com/sirupsen/logrus"
 )
 
 const cacheDir string = "./cache/"
 
-func GetListBody(now time.Time) ([]byte, error) {
+type Client struct {
+	URL        *url.URL
+	HTTPClient *http.Client
+
+	Logger *log.Logger
+}
+
+func NewClient(urlStr string, logger *log.Logger) (*Client, error) {
+	if len(urlStr) == 0 {
+		return nil, errors.New("urlStr is empty")
+	}
+	if logger == nil {
+		return nil, errors.New("logger is empty")
+	}
+
+	parsedURL, err := url.ParseRequestURI(urlStr)
+	if err != nil {
+		return nil, errors.New("faild to pars url: {}")
+	}
+
+	httpClient := http.DefaultClient
+
+	return &Client{
+		URL:        parsedURL,
+		HTTPClient: httpClient,
+		Logger:     logger,
+	}, nil
+}
+
+func (c *Client) newRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error) {
+	u := *c.URL
+	req, err := http.NewRequest(method, u.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	return req, nil
+}
+
+func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, error) {
 	m := int(now.Month())
 	d := int(now.Day())
-	cacheName := cacheDir + "list_" + strconv.Itoa(m) + "-" + strconv.Itoa(d) + ".html"
-	f, _ := os.Open(cacheName)
-	defer f.Close()
-	if f != nil {
-		var b []byte
-		buf := make([]byte, 10)
-		for {
-			n, err := f.Read(buf)
-			if n == 0 {
-				break
-			}
-			if err != nil {
-				break
-			}
-			b = append(b, buf[:n]...)
-		}
-		return b, nil
-	}
-	endpoint := "http://www.kinenbi.gr.jp/"
 
 	values := url.Values{}
 	values.Add("M", strconv.Itoa(m))
 	values.Add("D", strconv.Itoa(d))
 
-	res, err := http.PostForm(endpoint, values)
+	body := strings.NewReader(values.Encode())
+
+	req, err := c.newRequest(ctx, "POST", body)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.HTTPClient.Do(req)
+}
+
+func GetListBody(now time.Time) ([]byte, error) {
+	logger := log.New()
+	cli, err := NewClient("http://www.kinenbi.gr.jp/", logger)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	res, err := cli.GetList(ctx, now)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -56,10 +103,31 @@ func GetListBody(now time.Time) ([]byte, error) {
 		return nil, err
 	}
 
-	f, _ = os.Create(cacheName)
-	defer f.Close()
-	f.Write(body)
 	return body, nil
+}
+
+func GetListBodyByCache(now time.Time) ([]byte, error) {
+	m := int(now.Month())
+	d := int(now.Day())
+	cacheName := cacheDir + "list_" + strconv.Itoa(m) + "-" + strconv.Itoa(d) + ".html"
+	f, _ := os.Open(cacheName)
+	defer f.Close()
+	if f == nil {
+		return nil, nil
+	}
+	var b []byte
+	buf := make([]byte, 10)
+	for {
+		n, err := f.Read(buf)
+		if n == 0 {
+			break
+		}
+		if err != nil {
+			break
+		}
+		b = append(b, buf[:n]...)
+	}
+	return b, nil
 }
 
 func GetDetailBody(path string) ([]byte, error) {
