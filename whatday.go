@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -50,10 +49,8 @@ func NewClient(urlStr string, logger *log.Logger) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) newRequest(ctx context.Context, method string, spath string, body io.Reader) (*http.Request, error) {
-	u := *c.URL
-	u.Path = path.Join(c.URL.Path, spath)
-	req, err := http.NewRequest(method, u.String(), body)
+func (c *Client) newRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error) {
+	req, err := http.NewRequest(method, c.URL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +70,7 @@ func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, er
 
 	body := strings.NewReader(values.Encode())
 
-	req, err := c.newRequest(ctx, "POST", "", body)
+	req, err := c.newRequest(ctx, "POST", body)
 	if err != nil {
 		return nil, err
 	}
@@ -81,12 +78,11 @@ func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, er
 	return c.HTTPClient.Do(req)
 }
 
-func (c *Client) GetDetail(ctx context.Context, spath string) (*http.Response, error) {
-	req, err := c.newRequest(ctx, "GET", spath, nil)
+func (c *Client) GetDetail(ctx context.Context) (*http.Response, error) {
+	req, err := c.newRequest(ctx, "GET", nil)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("%v", req)
 	return c.HTTPClient.Do(req)
 }
 
@@ -128,7 +124,7 @@ func GetDetailBody(spath string) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-	res, err := cli.GetDetail(ctx, "")
+	res, err := cli.GetDetail(ctx)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
