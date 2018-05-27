@@ -8,7 +8,10 @@ import (
 
 func TestNewArticles(t *testing.T) {
 	date := time.Date(2018, 5, 9, 0, 0, 0, 0, time.Local)
-	articles, _ := NewArticles(date)
+	articles, err := NewArticles(date)
+	if err != nil {
+		t.Error(err)
+	}
 
 	i := rand.Intn(articles.Length())
 	got := articles.Articles[i]
