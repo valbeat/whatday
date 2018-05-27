@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -8,6 +9,14 @@ import (
 )
 
 func main() {
+	t := time.Now()
+	articles, err := whatday.NewArticles(t)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	rand.Seed(time.Now().UnixNano())
-	whatday.Print()
+	i := rand.Intn(articles.Length())
+	article := articles.Articles[i]
+	fmt.Println(article.String())
 }
