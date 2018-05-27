@@ -26,12 +26,12 @@ func NewArticle(t time.Time) Article {
 	nodeList := doc.Find(".today_kinenbilist .winDetail")
 
 	node := nodeList.Eq(rand.Intn(nodeList.Length()))
-	article := getArticle(node)
+	href, _ := node.Attr("href")
+	article := getArticle(href)
 	return article
 }
 
-func getArticle(s *goquery.Selection) Article {
-	href, _ := s.Attr("href")
+func getArticle(href string) Article {
 	detail, _ := GetDetailBody(href)
 	_doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(detail)))
 
