@@ -11,13 +11,20 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Articles is a struct
+type Articles struct {
+	Date     time.Time
+	Articles []Article
+}
+
 // Article is
 type Article struct {
 	Title string
 	Text  string
 }
 
-func NewArticle(t time.Time) Article {
+func NewArticles(t time.Time) *Articles {
+
 	b, _ := GetList(t)
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(b)))
@@ -25,12 +32,24 @@ func NewArticle(t time.Time) Article {
 		fmt.Println(err)
 	}
 
-	nodeList := doc.Find(".today_kinenbilist .winDetail")
+	var articles []Article
 
+	nodeList := doc.Find(".today_kinenbilist .winDetail")
 	node := nodeList.Eq(rand.Intn(nodeList.Length()))
 	href, _ := node.Attr("href")
 	article := getArticle(href)
-	return article
+
+	articles = append(articles, article)
+
+	return &Articles{
+		Date:     t,
+		Articles: articles,
+	}
+}
+
+func NewArticle(t time.Time) Article {
+	articles := NewArticles(t)
+	return articles.Articles[0]
 }
 
 func GetList(now time.Time) ([]byte, error) {
