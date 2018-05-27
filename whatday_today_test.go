@@ -1,4 +1,4 @@
-package main
+package whatday
 
 import (
 	"testing"

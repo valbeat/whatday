@@ -1,94 +1,22 @@
-package main
+package whatday
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"math/rand"
-	"net/http"
-	"net/url"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	log "github.com/sirupsen/logrus"
 )
 
 const cacheDir string = "./cache/"
 
-type Client struct {
-	URL        *url.URL
-	HTTPClient *http.Client
-
-	Logger *log.Logger
-}
-
-func NewClient(urlStr string, logger *log.Logger) (*Client, error) {
-	if len(urlStr) == 0 {
-		return nil, errors.New("urlStr is empty")
-	}
-	if logger == nil {
-		return nil, errors.New("logger is empty")
-	}
-
-	parsedURL, err := url.ParseRequestURI(urlStr)
-	if err != nil {
-		return nil, errors.New("faild to pars url: {}")
-	}
-
-	httpClient := http.DefaultClient
-
-	return &Client{
-		URL:        parsedURL,
-		HTTPClient: httpClient,
-		Logger:     logger,
-	}, nil
-}
-
-func (c *Client) newRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error) {
-	req, err := http.NewRequest(method, c.URL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req = req.WithContext(ctx)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	return req, nil
-}
-
-func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, error) {
-	m := int(now.Month())
-	d := int(now.Day())
-
-	values := url.Values{}
-	values.Add("M", strconv.Itoa(m))
-	values.Add("D", strconv.Itoa(d))
-
-	body := strings.NewReader(values.Encode())
-
-	req, err := c.newRequest(ctx, "POST", body)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.HTTPClient.Do(req)
-}
-
-func (c *Client) GetDetail(ctx context.Context) (*http.Response, error) {
-	req, err := c.newRequest(ctx, "GET", nil)
-	if err != nil {
-		return nil, err
-	}
-	return c.HTTPClient.Do(req)
-}
-
 func GetListBody(now time.Time) ([]byte, error) {
-	logger := log.New()
-	cli, err := NewClient("http://www.kinenbi.gr.jp/", logger)
+	cli, err := NewClient("http://www.kinenbi.gr.jp/")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -114,8 +42,7 @@ func GetListBody(now time.Time) ([]byte, error) {
 }
 
 func GetDetailBody(spath string) ([]byte, error) {
-	logger := log.New()
-	cli, err := NewClient("http://www.kinenbi.gr.jp/"+spath, logger)
+	cli, err := NewClient("http://www.kinenbi.gr.jp/" + spath)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -209,9 +136,4 @@ func Print() {
 	article := NewArticle(time.Now())
 	println(article.Title)
 	println(article.Text)
-}
-
-func main() {
-	rand.Seed(time.Now().UnixNano())
-	Print()
 }
