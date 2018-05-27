@@ -86,7 +86,7 @@ func (c *Client) GetDetail(ctx context.Context, spath string) (*http.Response, e
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Printf("%v", req)
 	return c.HTTPClient.Do(req)
 }
 
@@ -117,10 +117,18 @@ func GetListBody(now time.Time) ([]byte, error) {
 	return body, nil
 }
 
-func GetDetailBody(path string) ([]byte, error) {
-	base := "http://www.kinenbi.gr.jp/"
-	req := base + path
-	res, err := http.Get(req)
+func GetDetailBody(spath string) ([]byte, error) {
+	logger := log.New()
+	cli, err := NewClient("http://www.kinenbi.gr.jp/"+spath, logger)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	res, err := cli.GetDetail(ctx, "")
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
