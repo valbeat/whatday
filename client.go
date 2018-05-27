@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+// Client is a struct
 type Client struct {
 	URL        *url.URL
 	HTTPClient *http.Client
@@ -19,11 +20,11 @@ type Client struct {
 	Logger *log.Logger
 }
 
+// NewClient create client
 func NewClient(urlStr string) (*Client, error) {
 	if len(urlStr) == 0 {
 		return nil, errors.New("urlStr is empty")
 	}
-
 	parsedURL, err := url.ParseRequestURI(urlStr)
 	if err != nil {
 		return nil, errors.New("faild to pars url: {}")
@@ -48,6 +49,7 @@ func (c *Client) newRequest(ctx context.Context, method string, body io.Reader) 
 	return req, nil
 }
 
+// GetList return list
 func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, error) {
 	m := int(now.Month())
 	d := int(now.Day())
@@ -66,6 +68,7 @@ func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, er
 	return c.HTTPClient.Do(req)
 }
 
+// GetDetail return detail
 func (c *Client) GetDetail(ctx context.Context) (*http.Response, error) {
 	req, err := c.newRequest(ctx, "GET", nil)
 	if err != nil {
