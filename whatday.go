@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -49,8 +50,9 @@ func NewClient(urlStr string, logger *log.Logger) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) newRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error) {
+func (c *Client) newRequest(ctx context.Context, method string, spath string, body io.Reader) (*http.Request, error) {
 	u := *c.URL
+	u.Path = path.Join(c.URL.Path, spath)
 	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return nil, err
@@ -71,7 +73,16 @@ func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, er
 
 	body := strings.NewReader(values.Encode())
 
-	req, err := c.newRequest(ctx, "POST", body)
+	req, err := c.newRequest(ctx, "POST", "", body)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.HTTPClient.Do(req)
+}
+
+func (c *Client) GetDetail(ctx context.Context, spath string) (*http.Response, error) {
+	req, err := c.newRequest(ctx, "GET", spath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -91,6 +102,25 @@ func GetListBody(now time.Time) ([]byte, error) {
 	defer cancel()
 
 	res, err := cli.GetList(ctx, now)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return body, nil
+}
+
+func GetDetailBody(path string) ([]byte, error) {
+	base := "http://www.kinenbi.gr.jp/"
+	req := base + path
+	res, err := http.Get(req)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -137,25 +167,6 @@ func GetCacheBody(cacheName string) ([]byte, error) {
 		b = append(b, buf[:n]...)
 	}
 	return b, nil
-}
-
-func GetDetailBody(path string) ([]byte, error) {
-	base := "http://www.kinenbi.gr.jp/"
-	req := base + path
-	res, err := http.Get(req)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	return body, nil
 }
 
 // Article is
