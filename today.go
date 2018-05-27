@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Print article default format
+// Print today article by default format
 func Print() {
 	t := time.Now()
 	articles, err := NewArticles(t)
