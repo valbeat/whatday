@@ -100,7 +100,7 @@ func decodeArticles(body io.Reader, articles []Article) error {
 			return
 		}
 		if article == nil {
-			// article is empty
+			// article is nil but not error
 			return
 		}
 		articles = append(articles, *article)
