@@ -50,8 +50,9 @@ func NewArticles(t time.Time) (*Articles, error) {
 	}
 	defer res.Body.Close()
 
-	articles := decodeArticles(res.Body)
-
+	articles := make([]Article, 0, 5)
+	decodeArticles(res.Body, articles)
+	articles = articles[:cap(articles)]
 	return &Articles{
 		Date:     t,
 		Articles: articles,
@@ -74,29 +75,50 @@ func newArticle(spath string) (*Article, error) {
 		return nil, err
 	}
 	defer res.Body.Close()
-	article := decodeArticle(res.Body)
-	return article, nil
+	var article Article
+	err = decodeArticle(res.Body, &article)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return &article, nil
 }
 
-func decodeArticles(body io.Reader) []Article {
+func decodeArticles(body io.Reader, articles []Article) error {
 
-	doc, _ := goquery.NewDocumentFromReader(body)
+	doc, err := goquery.NewDocumentFromReader(body)
+	if err != nil {
+		return err
+	}
 
-	var articles []Article
 	nodeList := doc.Find(".today_kinenbilist .winDetail")
 	nodeList.Each(func(i int, node *goquery.Selection) {
 		href, _ := node.Attr("href")
-		article, _ := newArticle(href)
+		article, err := newArticle(href)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		if article == nil {
+			// article is empty
+			return
+		}
 		articles = append(articles, *article)
 	})
-	return articles
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func decodeArticle(body io.Reader) *Article {
-	doc, _ := goquery.NewDocumentFromReader(body)
-
-	return &Article{
-		Title: strings.TrimSpace(doc.Find("tr").First().Text()),
-		Text:  strings.TrimSpace(doc.Find("tr").Last().Text()),
+func decodeArticle(body io.Reader, article *Article) error {
+	doc, err := goquery.NewDocumentFromReader(body)
+	if err != nil {
+		return err
 	}
+	article.Title = strings.TrimSpace(doc.Find("tr").First().Text())
+	article.Text = strings.TrimSpace(doc.Find("tr").Last().Text())
+	return nil
 }
