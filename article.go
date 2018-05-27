@@ -17,6 +17,11 @@ type Articles struct {
 	Articles []Article
 }
 
+// Length returns the number of articles.
+func (a *Articles) Length() int {
+	return len(a.Articles)
+}
+
 // Article is
 type Article struct {
 	Title string
@@ -35,11 +40,11 @@ func NewArticles(t time.Time) *Articles {
 	var articles []Article
 
 	nodeList := doc.Find(".today_kinenbilist .winDetail")
-	node := nodeList.Eq(rand.Intn(nodeList.Length()))
-	href, _ := node.Attr("href")
-	article := getArticle(href)
-
-	articles = append(articles, article)
+	nodeList.Each(func(i int, node *goquery.Selection) {
+		href, _ := node.Attr("href")
+		article := getArticle(href)
+		articles = append(articles, article)
+	})
 
 	return &Articles{
 		Date:     t,
@@ -49,7 +54,8 @@ func NewArticles(t time.Time) *Articles {
 
 func NewArticle(t time.Time) Article {
 	articles := NewArticles(t)
-	return articles.Articles[0]
+	i := rand.Intn(articles.Length())
+	return articles.Articles[i]
 }
 
 func GetList(now time.Time) ([]byte, error) {
