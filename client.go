@@ -44,7 +44,8 @@ func NewClient(urlStr string) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) newRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error) {
+// NewRequest returns a new Request given a method, URL, and optional body.
+func (c *Client) NewRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequest(method, c.URL.String(), body)
 	if err != nil {
 		return nil, err
@@ -67,7 +68,7 @@ func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, er
 
 	body := strings.NewReader(values.Encode())
 
-	req, err := c.newRequest(ctx, "POST", body)
+	req, err := c.NewRequest(ctx, "POST", body)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +78,7 @@ func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, er
 
 // GetDetail return detail
 func (c *Client) GetDetail(ctx context.Context) (*http.Response, error) {
-	req, err := c.newRequest(ctx, "GET", nil)
+	req, err := c.NewRequest(ctx, "GET", nil)
 	if err != nil {
 		return nil, err
 	}
