@@ -3,14 +3,20 @@ package whatday
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
 )
+
+const version = "1.0.0"
+
+var userAgent = fmt.Sprintf("whatday GoClient/%s (%v)", version, runtime.Version())
 
 // Client is a struct
 type Client struct {
@@ -46,6 +52,7 @@ func (c *Client) newRequest(ctx context.Context, method string, body io.Reader) 
 
 	req = req.WithContext(ctx)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", userAgent)
 	return req, nil
 }
 
