@@ -3,8 +3,8 @@ package whatday
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
-	"math/rand"
 	"strings"
 	"time"
 
@@ -22,19 +22,24 @@ func (a *Articles) Length() int {
 	return len(a.Articles)
 }
 
-// Article is
+// Article is a struct
 type Article struct {
 	Title string
 	Text  string
 }
 
-func NewArticles(t time.Time) *Articles {
-
-	b, _ := GetList(t)
+// NewArticles return Articles
+func NewArticles(t time.Time) (*Articles, error) {
+	b, err := getList(t)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(b)))
 	if err != nil {
 		fmt.Println(err)
+		return nil, err
 	}
 
 	var articles []Article
@@ -42,23 +47,17 @@ func NewArticles(t time.Time) *Articles {
 	nodeList := doc.Find(".today_kinenbilist .winDetail")
 	nodeList.Each(func(i int, node *goquery.Selection) {
 		href, _ := node.Attr("href")
-		article := getArticle(href)
-		articles = append(articles, article)
+		article, _ := newArticle(href)
+		articles = append(articles, *article)
 	})
 
 	return &Articles{
 		Date:     t,
 		Articles: articles,
-	}
+	}, nil
 }
 
-func NewArticle(t time.Time) Article {
-	articles := NewArticles(t)
-	i := rand.Intn(articles.Length())
-	return articles.Articles[i]
-}
-
-func GetList(now time.Time) ([]byte, error) {
+func getList(now time.Time) ([]byte, error) {
 	cli, err := NewClient("http://www.kinenbi.gr.jp/")
 	if err != nil {
 		fmt.Println(err)
@@ -84,7 +83,7 @@ func GetList(now time.Time) ([]byte, error) {
 	return body, nil
 }
 
-func GetDetail(spath string) ([]byte, error) {
+func newArticle(spath string) (*Article, error) {
 	cli, err := NewClient("http://www.kinenbi.gr.jp/" + spath)
 	if err != nil {
 		fmt.Println(err)
@@ -100,22 +99,15 @@ func GetDetail(spath string) ([]byte, error) {
 		return nil, err
 	}
 	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	return body, nil
+	article := decodeArticle(res.Body)
+	return article, nil
 }
 
-func getArticle(href string) Article {
-	detail, _ := GetDetail(href)
-	_doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(detail)))
+func decodeArticle(body io.Reader) *Article {
+	doc, _ := goquery.NewDocumentFromReader(body)
 
-	article := Article{}
-	article.Title = strings.TrimSpace(_doc.Find("tr").First().Text())
-	article.Text = strings.TrimSpace(_doc.Find("tr").Last().Text())
-	return article
+	return &Article{
+		Title: strings.TrimSpace(doc.Find("tr").First().Text()),
+		Text:  strings.TrimSpace(doc.Find("tr").Last().Text()),
+	}
 }
