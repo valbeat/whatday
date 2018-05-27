@@ -18,7 +18,7 @@ type Article struct {
 }
 
 func NewArticle(t time.Time) Article {
-	b, _ := GetListBody(t)
+	b, _ := GetList(t)
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(b)))
 	if err != nil {
@@ -33,7 +33,7 @@ func NewArticle(t time.Time) Article {
 	return article
 }
 
-func GetListBody(now time.Time) ([]byte, error) {
+func GetList(now time.Time) ([]byte, error) {
 	cli, err := NewClient("http://www.kinenbi.gr.jp/")
 	if err != nil {
 		fmt.Println(err)
@@ -59,7 +59,7 @@ func GetListBody(now time.Time) ([]byte, error) {
 	return body, nil
 }
 
-func GetDetailBody(spath string) ([]byte, error) {
+func GetDetail(spath string) ([]byte, error) {
 	cli, err := NewClient("http://www.kinenbi.gr.jp/" + spath)
 	if err != nil {
 		fmt.Println(err)
@@ -86,7 +86,7 @@ func GetDetailBody(spath string) ([]byte, error) {
 }
 
 func getArticle(href string) Article {
-	detail, _ := GetDetailBody(href)
+	detail, _ := GetDetail(href)
 	_doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(detail)))
 
 	article := Article{}
