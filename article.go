@@ -50,9 +50,8 @@ func NewArticles(t time.Time) (*Articles, error) {
 	}
 	defer res.Body.Close()
 
-	articles := make([]Article, 0, 5)
-	decodeArticles(res.Body, articles)
-	articles = articles[:cap(articles)]
+	var articles []Article
+	decodeArticles(res.Body, &articles)
 	return &Articles{
 		Date:     t,
 		Articles: articles,
@@ -84,12 +83,14 @@ func newArticle(spath string) (*Article, error) {
 	return &article, nil
 }
 
-func decodeArticles(body io.Reader, articles []Article) error {
+func decodeArticles(body io.Reader, articles *[]Article) error {
 
 	doc, err := goquery.NewDocumentFromReader(body)
 	if err != nil {
 		return err
 	}
+
+	res := *articles
 
 	nodeList := doc.Find(".today_kinenbilist .winDetail")
 	nodeList.Each(func(i int, node *goquery.Selection) {
@@ -103,8 +104,10 @@ func decodeArticles(body io.Reader, articles []Article) error {
 			// article is nil but not error
 			return
 		}
-		articles = append(articles, *article)
+		res = append(res, *article)
 	})
+
+	*articles = res
 
 	if err != nil {
 		return err
