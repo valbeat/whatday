@@ -16,7 +16,7 @@ func main() {
 	}
 
 	rand.Seed(time.Now().UnixNano())
-	i := rand.Intn(articles.Length())
-	article := articles.Get(i)
+	i := rand.Intn(len(articles))
+	article := articles[i]
 	fmt.Printf("## %s\n> %s", article.Title, article.Text)
 }

@@ -12,7 +12,6 @@ import (
 
 // Articles is a struct
 type Articles struct {
-	Date     time.Time
 	Articles []Article
 }
 
@@ -33,7 +32,7 @@ type Article struct {
 }
 
 // NewArticles return Articles
-func NewArticles(t time.Time) (*Articles, error) {
+func NewArticles(t time.Time) ([]Article, error) {
 	cli, err := NewClient("http://www.kinenbi.gr.jp/")
 	if err != nil {
 		fmt.Println(err)
@@ -52,10 +51,7 @@ func NewArticles(t time.Time) (*Articles, error) {
 
 	var articles []Article
 	decodeArticles(res.Body, &articles)
-	return &Articles{
-		Date:     t,
-		Articles: articles,
-	}, nil
+	return articles, nil
 }
 
 func newArticle(spath string) (*Article, error) {
