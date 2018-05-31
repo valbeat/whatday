@@ -10,21 +10,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-// Articles is a struct
-type Articles struct {
-	Articles []Article
-}
-
-// Length returns the number of articles.
-func (a *Articles) Length() int {
-	return len(a.Articles)
-}
-
-// Get retrieves the article at the specified index.
-func (a *Articles) Get(i int) Article {
-	return a.Articles[i]
-}
-
 // Article is a struct
 type Article struct {
 	Title string
