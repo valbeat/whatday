@@ -1,6 +1,7 @@
 package whatday
 
 import (
+	"io"
 	"os"
 	"strconv"
 	"time"
@@ -8,35 +9,27 @@ import (
 
 const cacheDir string = "./cache/"
 
-func GetListBodyByCache(now time.Time) ([]byte, error) {
+// ReadList returns a list reader
+func ReadList(now time.Time) (io.Reader, error) {
 	m := int(now.Month())
 	d := int(now.Day())
 	cacheName := cacheDir + "list_" + strconv.Itoa(m) + "-" + strconv.Itoa(d) + ".html"
-	return GetCacheBody(cacheName)
+	return read(cacheName)
 }
 
-func GetDetailByCache(path string) ([]byte, error) {
-	cacheName := cacheDir + "detail_" + path + ".html"
-	return GetCacheBody(cacheName)
+// ReadArticle returns an article reader
+func ReadArticle(path string) (io.Reader, error) {
+	cacheName := cacheDir + "article_" + path + ".html"
+	return read(cacheName)
 }
 
-func GetCacheBody(cacheName string) ([]byte, error) {
+func read(cacheName string) (io.Reader, error) {
 	f, _ := os.Open(cacheName)
 	defer f.Close()
 	if f == nil {
 		return nil, nil
 	}
-	var b []byte
-	buf := make([]byte, 10)
-	for {
-		n, err := f.Read(buf)
-		if n == 0 {
-			break
-		}
-		if err != nil {
-			break
-		}
-		b = append(b, buf[:n]...)
-	}
-	return b, nil
+	var r io.Reader
+	io.Copy(f, r)
+	return r, nil
 }
