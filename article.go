@@ -35,7 +35,7 @@ func NewArticles(t time.Time) ([]Article, error) {
 	defer res.Body.Close()
 
 	var articles []Article
-	decodeArticles(res.Body, &articles)
+	encodeArticles(res.Body, &articles)
 	return articles, nil
 }
 
@@ -64,7 +64,7 @@ func newArticle(spath string) (*Article, error) {
 	return &article, nil
 }
 
-func decodeArticles(body io.Reader, articles *[]Article) error {
+func encodeArticles(body io.Reader, articles *[]Article) error {
 
 	doc, err := goquery.NewDocumentFromReader(body)
 	if err != nil {
