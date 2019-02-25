@@ -1,2 +1,2 @@
 # whatday
-A command line tool for displaying "Today is what day"
+A library for getting "Today is what day"
