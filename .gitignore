@@ -25,11 +25,18 @@ _testmain.go
 *.test
 *.prof
 
+
+# for dep 
+vendor
+
+
 # for vscode
 .vscode
 debug
 
+# for intellij
+.idea/
+
+
 # for project
 cache
-
-.idea/
