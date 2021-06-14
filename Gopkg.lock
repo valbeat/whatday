@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:5a45c1f8dc56995c5db633c216152649f3b54d387b8a6be7c497b2bfa0889eec"
+  digest = "1:2686e4b09dfb768fadab2bb2f7c2015f38f7f83e592f9594d7c97de7a207d0d4"
   name = "github.com/PuerkitoBio/goquery"
   packages = ["."]
   pruneopts = "UT"
-  revision = "f41c56001f39e3288c2b214079e5cab9707f9b99"
-  version = "v1.6.1"
+  revision = "e11510b1149393940ea1ac1fdfeffcbd9619bd34"
+  version = "v1.7.0"
 
 [[projects]]
   digest = "1:66b3310cf22cdc96c35ef84ede4f7b9b370971c4025f394c89a2638729653b11"
