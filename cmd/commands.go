@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/valbeat/whatday/command"
+
+	"github.com/valbeat/whatday/cmd/commands"
 	"os"
 
 	"github.com/urfave/cli"
@@ -14,13 +15,13 @@ var Commands = []cli.Command{
 	{
 		Name:   "random",
 		Usage:  "",
-		Action: command.CmdRandom,
+		Action: commands.CmdRandom,
 		Flags:  []cli.Flag{},
 	},
 	{
 		Name:   "list",
 		Usage:  "",
-		Action: command.CmdList,
+		Action: commands.CmdList,
 		Flags:  []cli.Flag{},
 	},
 }

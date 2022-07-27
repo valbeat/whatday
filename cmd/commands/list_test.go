@@ -1,4 +1,4 @@
-package command
+package commands
 
 import (
 	"flag"
@@ -7,13 +7,13 @@ import (
 	"github.com/urfave/cli"
 )
 
-func TestCmdRandom(t *testing.T) {
+func TestCmdList(t *testing.T) {
 	app := cli.NewApp()
 	set := flag.NewFlagSet("", 0)
 	c := cli.NewContext(app, set, nil)
 
 	command := cli.Command{
-		Action: CmdRandom,
+		Action: CmdList,
 	}
 	err := command.Run(c)
 	if err != nil {
