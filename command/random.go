@@ -1,14 +1,16 @@
-package main
+package command
 
 import (
 	"fmt"
+	"github.com/valbeat/whatday/whatday"
 	"math/rand"
 	"time"
 
-	"github.com/valbeat/whatday"
+	"github.com/urfave/cli"
 )
 
-func main() {
+// CmdRandom prints random article
+func CmdRandom(c *cli.Context) {
 	t := time.Now()
 	articles, err := whatday.NewArticles(t)
 	if err != nil {
@@ -18,5 +20,5 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	i := rand.Intn(len(articles))
 	article := articles[i]
-	fmt.Printf("## %s\n> %s", article.Title, article.Text)
+	fmt.Printf("## %s\n> %s\n", article.Title, article.Text)
 }
