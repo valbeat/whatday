@@ -7,14 +7,14 @@ import (
 )
 
 func TestNewClient(t *testing.T) {
-	_, err := NewClient("http://www.kinenbi.gr.jp/")
+	_, err := NewClient(EndPoint)
 	if err != nil {
 		t.Fatalf("Failed to construct client: %s", err)
 	}
 }
 
 func TestClientNewRequest(t *testing.T) {
-	cli, err := NewClient("http://www.kinenbi.gr.jp/")
+	cli, err := NewClient(EndPoint)
 	if err != nil {
 		t.Fatalf("Failed to construct client: %s", err)
 	}
@@ -26,7 +26,7 @@ func TestClientNewRequest(t *testing.T) {
 }
 
 func TestClientGetList(t *testing.T) {
-	cli, err := NewClient("http://www.kinenbi.gr.jp/")
+	cli, err := NewClient(EndPoint)
 	if err != nil {
 		t.Fatalf("Failed to construct client: %s", err)
 	}
@@ -38,7 +38,7 @@ func TestClientGetList(t *testing.T) {
 }
 
 func TestClientGetDetail(t *testing.T) {
-	cli, err := NewClient("http://www.kinenbi.gr.jp/")
+	cli, err := NewClient(EndPoint)
 	if err != nil {
 		t.Fatalf("Failed to construct client: %s", err)
 	}

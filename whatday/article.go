@@ -16,9 +16,11 @@ type Article struct {
 	Text  string
 }
 
+const EndPoint = "http://www.kinenbi.gr.jp/"
+
 // NewArticles return Articles
 func NewArticles(t time.Time) ([]Article, error) {
-	cli, err := NewClient("http://www.kinenbi.gr.jp/")
+	cli, err := NewClient(EndPoint)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -40,7 +42,7 @@ func NewArticles(t time.Time) ([]Article, error) {
 }
 
 func newArticle(spath string) (*Article, error) {
-	cli, err := NewClient("http://www.kinenbi.gr.jp/" + spath)
+	cli, err := NewClient(EndPoint + spath)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
