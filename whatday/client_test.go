@@ -7,6 +7,7 @@ import (
 )
 
 func TestNewClient(t *testing.T) {
+	t.Skip("Only development")
 	_, err := NewClient(EndPoint)
 	if err != nil {
 		t.Fatalf("Failed to construct client: %s", err)
@@ -14,6 +15,7 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestClientNewRequest(t *testing.T) {
+	t.Skip("Only development")
 	cli, err := NewClient(EndPoint)
 	if err != nil {
 		t.Fatalf("Failed to construct client: %s", err)
@@ -26,6 +28,7 @@ func TestClientNewRequest(t *testing.T) {
 }
 
 func TestClientGetList(t *testing.T) {
+	t.Skip("Only development")
 	cli, err := NewClient(EndPoint)
 	if err != nil {
 		t.Fatalf("Failed to construct client: %s", err)
@@ -38,6 +41,7 @@ func TestClientGetList(t *testing.T) {
 }
 
 func TestClientGetDetail(t *testing.T) {
+	t.Skip("Only development")
 	cli, err := NewClient(EndPoint)
 	if err != nil {
 		t.Fatalf("Failed to construct client: %s", err)
