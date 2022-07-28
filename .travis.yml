@@ -2,10 +2,7 @@ language: go
 go:
   - tip
 before_install:
-  - go get github.com/golang/dep/...
-  - go get github.com/mattn/goveralls
-install:
-  - $GOPATH/bin/dep ensure
+  - go install github.com/mattn/goveralls@latest
 script:
   - go test -v
   - $GOPATH/bin/goveralls -service=travis-ci
