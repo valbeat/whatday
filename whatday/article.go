@@ -34,10 +34,18 @@ func NewArticles(t time.Time) ([]Article, error) {
 		fmt.Println(err)
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(res.Body)
 
 	var articles []Article
-	encodeArticles(res.Body, &articles)
+	err = encodeArticles(res.Body, &articles)
+	if err != nil {
+		return nil, err
+	}
 	return articles, nil
 }
 
@@ -56,7 +64,12 @@ func newArticle(spath string) (*Article, error) {
 		fmt.Println(err)
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(res.Body)
 	var article Article
 	err = decodeArticle(res.Body, &article)
 	if err != nil {
@@ -91,11 +104,6 @@ func encodeArticles(body io.Reader, articles *[]Article) error {
 	})
 
 	*articles = res
-
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
