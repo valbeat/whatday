@@ -1,5 +1,7 @@
 package whatday
 
+//go:generate mockgen -source client.go -destination client_mock.go -package whatday
+
 import (
 	"context"
 	"errors"
@@ -18,8 +20,14 @@ const version = "1.0.0"
 
 var userAgent = fmt.Sprintf("whatday GoClient/%s (%v)", version, runtime.Version())
 
+type Client interface {
+	NewRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error)
+	GetList(ctx context.Context, now time.Time) (*http.Response, error)
+	GetDetail(ctx context.Context) (*http.Response, error)
+}
+
 // Client is a struct
-type Client struct {
+type client struct {
 	URL        *url.URL
 	HTTPClient *http.Client
 
@@ -27,7 +35,7 @@ type Client struct {
 }
 
 // NewClient create client
-func NewClient(urlStr string) (*Client, error) {
+func NewClient(urlStr string) (Client, error) {
 	if len(urlStr) == 0 {
 		return nil, errors.New("urlStr is empty")
 	}
@@ -38,14 +46,14 @@ func NewClient(urlStr string) (*Client, error) {
 
 	httpClient := http.DefaultClient
 
-	return &Client{
+	return &client{
 		URL:        parsedURL,
 		HTTPClient: httpClient,
 	}, nil
 }
 
 // NewRequest returns a new Request given a method, URL, and optional body.
-func (c *Client) NewRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error) {
+func (c *client) NewRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequest(method, c.URL.String(), body)
 	if err != nil {
 		return nil, err
@@ -58,9 +66,9 @@ func (c *Client) NewRequest(ctx context.Context, method string, body io.Reader) 
 }
 
 // GetList return list
-func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, error) {
+func (c *client) GetList(ctx context.Context, now time.Time) (*http.Response, error) {
 	m := int(now.Month())
-	d := int(now.Day())
+	d := now.Day()
 
 	values := url.Values{}
 	values.Add("M", strconv.Itoa(m))
@@ -77,7 +85,7 @@ func (c *Client) GetList(ctx context.Context, now time.Time) (*http.Response, er
 }
 
 // GetDetail return detail
-func (c *Client) GetDetail(ctx context.Context) (*http.Response, error) {
+func (c *client) GetDetail(ctx context.Context) (*http.Response, error) {
 	req, err := c.NewRequest(ctx, "GET", nil)
 	if err != nil {
 		return nil, err
