@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.com/valbeat/whatday.svg?branch=master)](https://travis-ci.com/valbeat/whatday)
 
 ## Description
-A command line tool for displaying "Today is what day"
+A command line tool for displaying "Today is what day" from http://www.kinenbi.gr.jp/
 
 ## Usage
 ```
