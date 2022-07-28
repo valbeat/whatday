@@ -8,7 +8,7 @@ import (
 
 func TestNewArticles(t *testing.T) {
 	date := time.Date(2018, 5, 9, 0, 0, 0, 0, time.Local)
-	articles, err := NewArticles(date)
+	articles, err := GetArticles(date)
 	if err != nil {
 		t.Error(err)
 	}

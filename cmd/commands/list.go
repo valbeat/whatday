@@ -12,13 +12,13 @@ import (
 // CmdList prints article
 func CmdList(c *cli.Context) {
 	t := time.Now()
-	articles, err := whatday.NewArticles(t)
+	articles, err := whatday.GetArticles(t)
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	rand.Seed(time.Now().UnixNano())
 	for _, article := range articles {
-		fmt.Printf("## %s\n> %s\n", article.Title, article.Text)
+		fmt.Printf("%s\n%s\n", article.Title, article.Text)
 	}
 }
