@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.0
+	github.com/golang/mock v1.6.0
 	github.com/urfave/cli v1.22.9
 )
 

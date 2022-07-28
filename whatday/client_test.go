@@ -7,7 +7,6 @@ import (
 )
 
 func TestNewClient(t *testing.T) {
-	t.Skip("Only development")
 	_, err := NewClient(EndPoint)
 	if err != nil {
 		t.Fatalf("Failed to construct client: %s", err)
