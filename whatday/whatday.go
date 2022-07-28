@@ -12,18 +12,23 @@ import (
 
 const EndPoint = "http://www.kinenbi.gr.jp/"
 
-// GetArticles return Articles
-func GetArticles(t time.Time) ([]Article, error) {
-	cli, err := NewClient(EndPoint)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
+type Whatday struct {
+	client Client
+}
 
+func New() Whatday {
+	client, _ := NewClient(EndPoint)
+	return Whatday{
+		client: client,
+	}
+}
+
+// GetArticles return Articles
+func (w Whatday) GetArticles(t time.Time) ([]Article, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	res, err := cli.GetList(ctx, t)
+	res, err := w.client.GetList(ctx, t)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -36,24 +41,18 @@ func GetArticles(t time.Time) ([]Article, error) {
 	}(res.Body)
 
 	var articles []Article
-	err = encodeArticles(res.Body, &articles)
+	err = w.encodeArticles(res.Body, &articles)
 	if err != nil {
 		return nil, err
 	}
 	return articles, nil
 }
 
-func newArticle(spath string) (*Article, error) {
-	cli, err := NewClient(EndPoint + spath)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
+func (w Whatday)newArticle(path string) (*Article, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	res, err := cli.GetDetail(ctx)
+	res, err := w.client.GetDetail(ctx, path)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -73,7 +72,7 @@ func newArticle(spath string) (*Article, error) {
 	return &article, nil
 }
 
-func encodeArticles(body io.Reader, articles *[]Article) error {
+func (w Whatday)encodeArticles(body io.Reader, articles *[]Article) error {
 
 	doc, err := goquery.NewDocumentFromReader(body)
 	if err != nil {
@@ -85,7 +84,7 @@ func encodeArticles(body io.Reader, articles *[]Article) error {
 	nodeList := doc.Find(".today_kinenbilist .winDetail")
 	nodeList.Each(func(i int, node *goquery.Selection) {
 		href, _ := node.Attr("href")
-		article, err := newArticle(href)
+		article, err := w.newArticle(href)
 		if err != nil {
 			fmt.Println(err)
 			return

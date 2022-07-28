@@ -21,9 +21,8 @@ const version = "1.0.0"
 var userAgent = fmt.Sprintf("whatday GoClient/%s (%v)", version, runtime.Version())
 
 type Client interface {
-	NewRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error)
 	GetList(ctx context.Context, now time.Time) (*http.Response, error)
-	GetDetail(ctx context.Context) (*http.Response, error)
+	GetDetail(ctx context.Context, path string) (*http.Response, error)
 }
 
 // Client is a struct
@@ -41,28 +40,14 @@ func NewClient(urlStr string) (Client, error) {
 	}
 	parsedURL, err := url.ParseRequestURI(urlStr)
 	if err != nil {
-		return nil, errors.New("faild to pars url: {}")
+		return nil, errors.New("failed to parse url: {}")
 	}
 
 	httpClient := http.DefaultClient
-
 	return &client{
 		URL:        parsedURL,
 		HTTPClient: httpClient,
 	}, nil
-}
-
-// NewRequest returns a new Request given a method, URL, and optional body.
-func (c *client) NewRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error) {
-	req, err := http.NewRequest(method, c.URL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req = req.WithContext(ctx)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("User-Agent", userAgent)
-	return req, nil
 }
 
 // GetList return list
@@ -76,7 +61,7 @@ func (c *client) GetList(ctx context.Context, now time.Time) (*http.Response, er
 
 	body := strings.NewReader(values.Encode())
 
-	req, err := c.NewRequest(ctx, "POST", body)
+	req, err := c.newRequest(ctx, "POST", c.URL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -85,10 +70,24 @@ func (c *client) GetList(ctx context.Context, now time.Time) (*http.Response, er
 }
 
 // GetDetail return detail
-func (c *client) GetDetail(ctx context.Context) (*http.Response, error) {
-	req, err := c.NewRequest(ctx, "GET", nil)
+func (c *client) GetDetail(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.newRequest(ctx, "GET", c.URL.String() + path, nil)
 	if err != nil {
 		return nil, err
 	}
 	return c.HTTPClient.Do(req)
+}
+
+
+// newRequest returns a new Request given a method, URL, and optional body.
+func (c *client) newRequest(ctx context.Context, method string, url string, body io.Reader) (*http.Request, error) {
+	req, err := http.NewRequest(method, url, body)
+	if err != nil {
+		return nil, err
+	}
+
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", userAgent)
+	return req, nil
 }

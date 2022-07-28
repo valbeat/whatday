@@ -12,7 +12,7 @@ import (
 // CmdRandom prints random article
 func CmdRandom(c *cli.Context) {
 	t := time.Now()
-	articles, err := whatday.GetArticles(t)
+	articles, err := whatday.New().GetArticles(t)
 	if err != nil {
 		fmt.Println(err)
 	}

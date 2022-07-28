@@ -12,7 +12,7 @@ import (
 // CmdList prints article
 func CmdList(c *cli.Context) {
 	t := time.Now()
-	articles, err := whatday.GetArticles(t)
+	articles, err := whatday.New().GetArticles(t)
 	if err != nil {
 		fmt.Println(err)
 	}

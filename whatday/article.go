@@ -4,4 +4,5 @@ package whatday
 type Article struct {
 	Title string
 	Text  string
+	Path  string
 }

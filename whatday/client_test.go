@@ -13,19 +13,6 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-func TestClientNewRequest(t *testing.T) {
-	t.Skip("Only development")
-	cli, err := NewClient(EndPoint)
-	if err != nil {
-		t.Fatalf("Failed to construct client: %s", err)
-	}
-	ctx := context.Background()
-	_, err = cli.NewRequest(ctx, "GET", nil)
-	if err != nil {
-		t.Error(err)
-	}
-}
-
 func TestClientGetList(t *testing.T) {
 	t.Skip("Only development")
 	cli, err := NewClient(EndPoint)
@@ -46,7 +33,7 @@ func TestClientGetDetail(t *testing.T) {
 		t.Fatalf("Failed to construct client: %s", err)
 	}
 	ctx := context.Background()
-	_, err = cli.GetDetail(ctx)
+	_, err = cli.GetDetail(ctx, "")
 	if err != nil {
 		t.Error(err)
 	}
