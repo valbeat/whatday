@@ -2,7 +2,7 @@
  
 [![Coverage Status](https://coveralls.io/repos/github/valbeat/whatday/badge.svg?branch=feature/use_coveralls)](https://coveralls.io/github/valbeat/whatday?branch=feature/use_coveralls)
 [![Go Report Card](https://goreportcard.com/badge/github.com/valbeat/whatday)](https://goreportcard.com/report/github.com/valbeat/whatday)
-[![Build Status](https://travis-ci.com/valbeat/whatday.svg?branch=master)](https://travis-ci.com/valbeat/whatday)
+[![Build Status](https://app.travis-ci.com/valbeat/whatday.svg?branch=main)](https://app.travis-ci.com/valbeat/whatday)
 
 ## Description
 A command line tool for displaying "Today is what day" from [一般社団法人 日本記念日協会](https://www.kinenbi.gr.jp/)
