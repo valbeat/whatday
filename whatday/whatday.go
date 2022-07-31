@@ -21,11 +21,28 @@ func New(client Client) Whatday {
 }
 
 // GetArticles return Articles
-func (w Whatday) GetArticles(t time.Time) ([]Article, error) {
+func (w Whatday) GetArticles(day time.Time) ([]Article, error) {
+	pathList, err := w.getPaths(day)
+	if err != nil {
+		return nil, err
+	}
+	var articles []Article
+	for _, path := range pathList {
+		article, err := w.getArticle(path)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		articles = append(articles, *article)
+	}
+	return articles, nil
+}
+
+func (w Whatday) getPaths(day time.Time) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	res, err := w.client.GetList(ctx, t)
+	res, err := w.client.GetList(ctx, day)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -37,15 +54,20 @@ func (w Whatday) GetArticles(t time.Time) ([]Article, error) {
 		}
 	}(res.Body)
 
-	var articles []Article
-	err = w.encodeArticles(res.Body, &articles)
+	var pathList []string
+	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		return nil, err
+		return pathList, err
 	}
-	return articles, nil
+	nodeList := doc.Find(".today_kinenbilist .winDetail")
+	nodeList.Each(func(i int, node *goquery.Selection) {
+		path, _ := node.Attr("href")
+		pathList = append(pathList, path)
+	})
+	return pathList, nil
 }
 
-func (w Whatday)newArticle(path string) (*Article, error) {
+func (w Whatday) getArticle(path string) (*Article, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -60,49 +82,13 @@ func (w Whatday)newArticle(path string) (*Article, error) {
 			return
 		}
 	}(res.Body)
-	var article Article
-	err = decodeArticle(res.Body, &article)
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
-	return &article, nil
-}
-
-func (w Whatday)encodeArticles(body io.Reader, articles *[]Article) error {
-
-	doc, err := goquery.NewDocumentFromReader(body)
-	if err != nil {
-		return err
-	}
-
-	res := *articles
-
-	nodeList := doc.Find(".today_kinenbilist .winDetail")
-	nodeList.Each(func(i int, node *goquery.Selection) {
-		href, _ := node.Attr("href")
-		article, err := w.newArticle(href)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		if article == nil {
-			// article is nil but not error
-			return
-		}
-		res = append(res, *article)
-	})
-
-	*articles = res
-	return nil
-}
-
-func decodeArticle(body io.Reader, article *Article) error {
-	doc, err := goquery.NewDocumentFromReader(body)
-	if err != nil {
-		return err
-	}
+	var article Article
 	article.Title = strings.TrimSpace(doc.Find("tr").First().Text())
 	article.Text = strings.TrimSpace(doc.Find("tr").Last().Text())
-	return nil
+	return &article, nil
 }
