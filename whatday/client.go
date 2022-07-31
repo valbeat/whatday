@@ -78,7 +78,8 @@ func (c *client) ListPath(ctx context.Context, now time.Time) ([]string, error) 
 }
 
 func (c *client) GetArticle(ctx context.Context, path string) (*Article, error) {
-	req, err := c.newRequest(ctx, "GET", c.URL.String()+path, nil)
+	url := c.URL.String()+path
+	req, err := c.newRequest(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +96,7 @@ func (c *client) GetArticle(ctx context.Context, path string) (*Article, error) 
 	var article Article
 	article.Title = strings.TrimSpace(doc.Find("tr").First().Text())
 	article.Text = strings.TrimSpace(doc.Find("tr").Last().Text())
+	article.Url = url
 	return &article, nil
 }
 

@@ -6,18 +6,16 @@ import (
 	"time"
 )
 
-type Whatday struct {
+type whatday struct {
 	client Client
 }
 
-func New(client Client) Whatday {
-	return Whatday{
-		client: client,
-	}
+func WhatDay(day time.Time) ([]Article, error) {
+	return whatday{NewClient()}.GetArticles(day)
 }
 
 // GetArticles return Articles
-func (w Whatday) GetArticles(day time.Time) ([]Article, error) {
+func (w whatday) GetArticles(day time.Time) ([]Article, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	pathList, err := w.client.ListPath(ctx, day)
