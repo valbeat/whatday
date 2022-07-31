@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"github.com/valbeat/whatday/whatday"
-	"math/rand"
 	"time"
 
 	"github.com/urfave/cli"
@@ -17,7 +16,6 @@ func CmdList(c *cli.Context) {
 		fmt.Println(err)
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	for _, article := range articles {
 		fmt.Printf("%s\n%s\n", article.Title, article.Text)
 	}
