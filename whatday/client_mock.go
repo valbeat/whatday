@@ -6,7 +6,6 @@ package whatday
 
 import (
 	context "context"
-	http "net/http"
 	reflect "reflect"
 	time "time"
 
@@ -36,32 +35,32 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// GetDetail mocks base method.
-func (m *MockClient) GetDetail(ctx context.Context, path string) (*http.Response, error) {
+// GetArticle mocks base method.
+func (m *MockClient) GetArticle(ctx context.Context, path string) (*Article, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDetail", ctx, path)
-	ret0, _ := ret[0].(*http.Response)
+	ret := m.ctrl.Call(m, "GetArticle", ctx, path)
+	ret0, _ := ret[0].(*Article)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetDetail indicates an expected call of GetDetail.
-func (mr *MockClientMockRecorder) GetDetail(ctx, path interface{}) *gomock.Call {
+// GetArticle indicates an expected call of GetArticle.
+func (mr *MockClientMockRecorder) GetArticle(ctx, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockClient)(nil).GetDetail), ctx, path)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetArticle", reflect.TypeOf((*MockClient)(nil).GetArticle), ctx, path)
 }
 
-// GetList mocks base method.
-func (m *MockClient) GetList(ctx context.Context, now time.Time) (*http.Response, error) {
+// ListPath mocks base method.
+func (m *MockClient) ListPath(ctx context.Context, now time.Time) ([]string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetList", ctx, now)
-	ret0, _ := ret[0].(*http.Response)
+	ret := m.ctrl.Call(m, "ListPath", ctx, now)
+	ret0, _ := ret[0].([]string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetList indicates an expected call of GetList.
-func (mr *MockClientMockRecorder) GetList(ctx, now interface{}) *gomock.Call {
+// ListPath indicates an expected call of ListPath.
+func (mr *MockClientMockRecorder) ListPath(ctx, now interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetList", reflect.TypeOf((*MockClient)(nil).GetList), ctx, now)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPath", reflect.TypeOf((*MockClient)(nil).ListPath), ctx, now)
 }

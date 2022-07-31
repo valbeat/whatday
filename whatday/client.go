@@ -5,6 +5,7 @@ package whatday
 import (
 	"context"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	"io"
 	"log"
 	"net/http"
@@ -16,13 +17,13 @@ import (
 )
 
 const version = "1.0.0"
-const EndPoint = "http://www.kinenbi.gr.jp/"
+const EndPoint = "https://www.kinenbi.gr.jp/"
 
 var userAgent = fmt.Sprintf("whatday GoClient/%s (%v)", version, runtime.Version())
 
 type Client interface {
-	GetList(ctx context.Context, now time.Time) (*http.Response, error)
-	GetDetail(ctx context.Context, path string) (*http.Response, error)
+	ListPath(ctx context.Context, now time.Time) ([]string, error)
+	GetArticle(ctx context.Context, path string) (*Article, error)
 }
 
 // Client is a struct
@@ -43,8 +44,7 @@ func NewClient() Client {
 	}
 }
 
-// GetList return list
-func (c *client) GetList(ctx context.Context, now time.Time) (*http.Response, error) {
+func (c *client) ListPath(ctx context.Context, now time.Time) ([]string, error) {
 	m := int(now.Month())
 	d := now.Day()
 
@@ -59,18 +59,44 @@ func (c *client) GetList(ctx context.Context, now time.Time) (*http.Response, er
 		return nil, err
 	}
 
-	return c.HTTPClient.Do(req)
-}
-
-// GetDetail return detail
-func (c *client) GetDetail(ctx context.Context, path string) (*http.Response, error) {
-	req, err := c.newRequest(ctx, "GET", c.URL.String() + path, nil)
+	response, err := c.HTTPClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	doc, err := goquery.NewDocumentFromReader(response.Body)
 	if err != nil {
 		return nil, err
 	}
-	return c.HTTPClient.Do(req)
+	var pathList []string
+	nodeList := doc.Find(".today_kinenbilist .winDetail")
+	nodeList.Each(func(i int, node *goquery.Selection) {
+		path, _ := node.Attr("href")
+		pathList = append(pathList, path)
+	})
+	return pathList, nil
 }
 
+func (c *client) GetArticle(ctx context.Context, path string) (*Article, error) {
+	req, err := c.newRequest(ctx, "GET", c.URL.String()+path, nil)
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.HTTPClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	doc, err := goquery.NewDocumentFromReader(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	var article Article
+	article.Title = strings.TrimSpace(doc.Find("tr").First().Text())
+	article.Text = strings.TrimSpace(doc.Find("tr").Last().Text())
+	return &article, nil
+}
 
 // newRequest returns a new Request given a method, URL, and optional body.
 func (c *client) newRequest(ctx context.Context, method string, url string, body io.Reader) (*http.Request, error) {
