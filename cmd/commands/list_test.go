@@ -8,6 +8,8 @@ import (
 )
 
 func TestCmdList(t *testing.T) {
+	t.Skip("Only development")
+
 	app := cli.NewApp()
 	set := flag.NewFlagSet("", 0)
 	c := cli.NewContext(app, set, nil)

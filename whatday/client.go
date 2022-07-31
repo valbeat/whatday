@@ -4,7 +4,6 @@ package whatday
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -17,6 +16,7 @@ import (
 )
 
 const version = "1.0.0"
+const EndPoint = "http://www.kinenbi.gr.jp/"
 
 var userAgent = fmt.Sprintf("whatday GoClient/%s (%v)", version, runtime.Version())
 
@@ -34,20 +34,13 @@ type client struct {
 }
 
 // NewClient create client
-func NewClient(urlStr string) (Client, error) {
-	if len(urlStr) == 0 {
-		return nil, errors.New("urlStr is empty")
-	}
-	parsedURL, err := url.ParseRequestURI(urlStr)
-	if err != nil {
-		return nil, errors.New("failed to parse url: {}")
-	}
-
+func NewClient() Client {
+	parsedURL, _ := url.ParseRequestURI(EndPoint)
 	httpClient := http.DefaultClient
 	return &client{
 		URL:        parsedURL,
 		HTTPClient: httpClient,
-	}, nil
+	}
 }
 
 // GetList return list

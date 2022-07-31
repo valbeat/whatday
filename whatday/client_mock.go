@@ -6,7 +6,6 @@ package whatday
 
 import (
 	context "context"
-	io "io"
 	http "net/http"
 	reflect "reflect"
 	time "time"
@@ -38,18 +37,18 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 }
 
 // GetDetail mocks base method.
-func (m *MockClient) GetDetail(ctx context.Context) (*http.Response, error) {
+func (m *MockClient) GetDetail(ctx context.Context, path string) (*http.Response, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDetail", ctx)
+	ret := m.ctrl.Call(m, "GetDetail", ctx, path)
 	ret0, _ := ret[0].(*http.Response)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetDetail indicates an expected call of GetDetail.
-func (mr *MockClientMockRecorder) GetDetail(ctx interface{}) *gomock.Call {
+func (mr *MockClientMockRecorder) GetDetail(ctx, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockClient)(nil).GetDetail), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetail", reflect.TypeOf((*MockClient)(nil).GetDetail), ctx, path)
 }
 
 // GetList mocks base method.
@@ -65,19 +64,4 @@ func (m *MockClient) GetList(ctx context.Context, now time.Time) (*http.Response
 func (mr *MockClientMockRecorder) GetList(ctx, now interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetList", reflect.TypeOf((*MockClient)(nil).GetList), ctx, now)
-}
-
-// NewRequest mocks base method.
-func (m *MockClient) NewRequest(ctx context.Context, method string, body io.Reader) (*http.Request, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NewRequest", ctx, method, body)
-	ret0, _ := ret[0].(*http.Request)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// NewRequest indicates an expected call of NewRequest.
-func (mr *MockClientMockRecorder) NewRequest(ctx, method, body interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewRequest", reflect.TypeOf((*MockClient)(nil).NewRequest), ctx, method, body)
 }

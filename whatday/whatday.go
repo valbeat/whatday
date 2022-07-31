@@ -10,14 +10,11 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const EndPoint = "http://www.kinenbi.gr.jp/"
-
 type Whatday struct {
 	client Client
 }
 
-func New() Whatday {
-	client, _ := NewClient(EndPoint)
+func New(client Client) Whatday {
 	return Whatday{
 		client: client,
 	}
