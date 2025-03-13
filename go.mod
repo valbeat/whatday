@@ -4,7 +4,7 @@ go 1.22.3
 toolchain go1.23.1
 
 require (
-	github.com/PuerkitoBio/goquery v1.10.1
+	github.com/PuerkitoBio/goquery v1.10.2
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.7.0
 	github.com/urfave/cli v1.22.16
