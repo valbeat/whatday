@@ -26,6 +26,6 @@ jobs:
           go generate ./...
           git diff --exit-code
       - run: go test ./... -v -cover -coverprofile coverage.out
-      - run: go test -bench . -benchmem
+      - run: go test -run '^$' -bench . -benchmem ./...
 
       - uses: codecov/codecov-action@v3
