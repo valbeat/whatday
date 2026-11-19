@@ -2,31 +2,29 @@ name: test
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 jobs:
   test:
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
-        go:
-          - "1.15"
-          - "1.16"
-          - "1.17"
-          - "1.18"
-          - "1.19"
-          - "1.20"
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
+          go-version-file: go.mod
 
-      - run: go generate ./...
-      - run: git diff --cached --exit-code
+      - run: go version
+      - name: Check generated mocks are up to date
+        if: runner.os == 'Linux'
+        run: |
+          go install github.com/golang/mock/mockgen@v1.6.0
+          go generate ./...
+          git diff --exit-code
       - run: go test ./... -v -cover -coverprofile coverage.out
       - run: go test -bench . -benchmem
 
