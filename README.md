@@ -14,6 +14,8 @@ $ whatday
 
 ## Install
 
+Requires Go 1.26 or later.
+
 To install, use `go install`:
 
 ```bash
